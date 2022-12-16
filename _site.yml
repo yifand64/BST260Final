@@ -1,0 +1,7 @@
+name: "final report BST260"
+output_dir: "."
+navbar:
+  title: "BST260 Final Project"
+  left:
+    - text: "Written report"
+      href: index.html

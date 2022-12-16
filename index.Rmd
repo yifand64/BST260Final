@@ -1,0 +1,26 @@
+---
+title: "Written report"
+author: "Yifan Duan"
+date: "2022-12-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# BST260 Final Project 2022 
+### Yifan Duan
+
+## Introduction
+The dataset is from the Behavioral Risk Factor Surveillance System (BRFSS), an annual telephone survey conducted by the Centers for Disease Control and Prevention (CDC). The data includes responses from over 70,692 Americans each year on health-related risk behaviors and chronic health conditions. This version I am using is a cleaned dataset which has an equal 50-50 split of respondents with no diabetes and with either pre-diabetes or diabetes. The outcome variable has 2 classes: 0 is for no diabetes, 1 is for pre-diabetes or diabetes, and the data contains 21 feature variables (e.g. BMI, smoking status, fruit consumption). The question I am trying to investigate to use these risk factors can be used to predict if someone has diabetes or not. Based on the exploratory data analysis, I decided to remove MentHlth, PhysHlth, DiffWalk, Education, Income, and HighBP as they are collinear with other variables (Fig. 1). In addition, I removed outliers of observations with BMI greater than 60 as the original BMI distribution deviates from a Gaussian distribution (Fig. 2). This should not impact the result too much as a BMI greater than 35 is considered obese and the data still have plenty of that group. Since the outcome variable is binary, it would be appropriate to use logistic regression as my first significant analysis method. For the second analysis, I decided to use a classification tree because the number of predictors is rather large.
+
+## Results
+Prior to any analysis, I first divided the 70,692 observations into training and test sets with an 80-20 split respectively using createDataPartition. For the first major analysis, I decided to use a generalized linear model, in this case, logistic regression to model the relationship between the predictor variables (Table 1) and the outcome. To implement this, I used the glm function in R to fit a logistic regression model (Figure 2) based on the training set. Then the predict function from the caret package was used to generate a list of probability values on the testing set with the logistic regression model from the training set. Since the probability values range from 0 to 1 but the outcome we want is binarized to either 0 (no diabetes) or 1 (has diabetes). I then used ifelse to convert the probability values to 0 if the probability is less than 0.5 or 1 if it is greater than 0.5. Finally, I used a confusion matrix to evaluate the accuracy of the logistic model. The final model has an accuracy of 74.1% (Table 2) which is considered adequate.
+For the second major analysis, I decided to implement a classification tree to predict whether someone has diabetes or not based on the covariates. A classification tree is used as the outcome is considered to be categorical, also it is faster to run and more interpretable than a random forest algorithm. I have trained a classification tree with rpart package with 10-fold cross-validation using trainControl by using 10% of the data each time (Figure 4). The inclusion of the cross validation increased the accuracy from 72% to almost 73%. From figure 4, we can see the accuracy is the highest when the complexity parameter is 0.004, which would yield an accuracy of over 72%. The final classification tree has an accuracy of 72.8% (Table 3) which is somewhat close but lower than the accuracy of 74.1% from the logistic regression. This is expected as the method is not very flexible and unstable to changes in training/testing data. From figure 5, we can see how the algorithm decides whether someone has diabetes based on 4 covariates: GenHlth, HighChol, Age, and BMI.
+
+## Conclusion
+The prevalence of diabetes in the United States has been ever-increasing as a consequence of the rising obesity rate and various unhealthy lifestyle choices. The logistic regression model and classification tree can provide insight to public health policymakers and clinicians on certain risk factors that can be tackled efficiently to prevent diabetes. Using various lifestyle choices (e.g. vegetable consumed) and health characteristics indicators (e.g. BMI), we are able to predict with 74.1% to 72.3% for logistic and classification tree models respectively. Thus we can conclude that logistic regression is adequate enough for the prediction of diabetes with this BRFSS 2015 data. Overall, the analysis was mostly successful with adequate prediction accuracy, however, better machine learning algorithms like random forest could be implemented if I had more time, which would improve the accuracy and address the limitation of a classification tree.
+
+## Reference
+Joshi RD, Dhakal CK. Predicting Type 2 Diabetes Using Logistic Regression and Machine Learning Approaches. Int J Environ Res Public Health. 2021 Jul 9;18(14):7346. doi: 10.3390/ijerph18147346. PMID: 34299797; PMCID: PMC8306487. Centers for Disease Control and Prevention (CDC). Behavioral Risk Factor Surveillance System Survey Data. Atlanta, Georgia: U.S. Department of Health and Human Services, Centers for Disease Control and Prevention, 2015.

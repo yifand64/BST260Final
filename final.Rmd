@@ -2,7 +2,9 @@
 title: "yifan_final"
 author: "Yifan Duan"
 date: "2022-12-06"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -52,6 +54,19 @@ p_hat_glm <- predict(fit_glm, test_set, type="response")
 y_hat_glm <- factor(ifelse(p_hat_glm > 0.5, 1, 0))
 confusionMatrix(y_hat_glm, as.factor(test_set$Diabetes_binary))$overall["Accuracy"]
 ```
+```{r}
+ggplot(aes(x = BMI, y = Diabetes_binary), data = test_set) +
+  geom_point(alpha = .15) + 
+  geom_smooth(method = "glm", method.args = list(family = "binomial")) +
+  ggtitle("Logistic regression model fit") +
+  xlab("BMI") +
+  ylab("Probability of diabetes")
+
+```
+```{r}
+summary(fit_glm)
+```
+
 
 ```{r}
 control <- trainControl(method = "cv", number = 10, p = .9)
