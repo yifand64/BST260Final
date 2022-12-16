@@ -2,9 +2,7 @@
 title: "yifan_final"
 author: "Yifan Duan"
 date: "2022-12-06"
-output:
-  pdf_document: default
-  html_document: default
+output: html_document
 ---
 
 ```{r setup, include=FALSE}

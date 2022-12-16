@@ -5,3 +5,5 @@ navbar:
   left:
     - text: "Written report"
       href: index.html
+    - text: "Code Analysis"
+      href: final.html
