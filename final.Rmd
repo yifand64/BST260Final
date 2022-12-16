@@ -1,0 +1,74 @@
+---
+title: "yifan_final"
+author: "Yifan Duan"
+date: "2022-12-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(corrplot)
+library(caret)
+```
+
+```{r}
+df <- read.csv("diabetes_5050.csv", sep = ",", header = TRUE)
+```
+
+```{r}
+df |>
+  ggplot() +
+  geom_histogram(aes(x = BMI, y = ..density..)) + 
+  labs(x = "BMI", title = "Distribution of BMI among participants") +
+  stat_function(fun = dnorm, args = list(mean = mean(df$BMI), sd = sd(df$BMI)), lwd = 1, col = "blue")
+```
+
+```{r}
+df_cor = cor(df[, c(2:22)], method = "pearson")
+corrplot(df_cor, method = "circle", type = "lower", tl.col = "black", tl.srt = 45)
+```
+
+```{r}
+# removing variables that appears collinear with other variables
+df <- df |> filter(BMI < 60) |> dplyr::select(-c(MentHlth, PhysHlth, DiffWalk, Education, Income, HighBP))
+```
+
+Splitting the data
+```{r}
+y <- df$Diabetes_binary
+test_index <- createDataPartition(y, times = 1, p = 0.2, list = FALSE)
+
+test_set <- df[test_index,]
+train_set <- df[-test_index,]
+```
+
+```{r}
+fit_glm <- glm(Diabetes_binary ~ ., data = train_set, family = "binomial")
+p_hat_glm <- predict(fit_glm, test_set, type="response")
+y_hat_glm <- factor(ifelse(p_hat_glm > 0.5, 1, 0))
+confusionMatrix(y_hat_glm, as.factor(test_set$Diabetes_binary))$overall["Accuracy"]
+```
+
+```{r}
+control <- trainControl(method = "cv", number = 10, p = .9)
+train_rpart <- train(as.factor(Diabetes_binary) ~ .,
+                     method = "rpart",
+                     tuneGrid = data.frame(cp = seq(0.0, 0.1, len = 25)),
+                     data = train_set, trControl = control)
+plot(train_rpart)
+```
+
+```{r}
+y_hat <- predict(train_rpart, test_set)
+confusionMatrix(y_hat, as.factor(test_set$Diabetes_binary))$overall["Accuracy"]
+```
+
+```{r}
+plot(train_rpart$finalModel, margin = 0.01)
+text(train_rpart$finalModel, cex = 0.75)
+```
+
